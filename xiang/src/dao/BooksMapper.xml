@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--mapper下namespace命名为其接口的全路径   -->
+<mapper  namespace="dao.BooksDao">
+<!--添加书籍  -->
+ <insert id="addbook"  parameterType="Books">
+      insert into tb_books (name,sortid,author,butyime) values(#{name},#{sortid},#{author},#{butyime})
+</insert>
+<!--根据id删除  -->
+<delete id="deletebook"  parameterType="int" >
+      delete from tb_books where id=#{id}
+</delete>
+
+<select id="findbooks"  resultType="Books">
+      select * from tb_books
+</select>
+
+<select id="getCount"  resultType="int" >
+      select count(1) from tb_books
+</select>
+
+
+
+<select id="fenye"  resultType="Books" >
+      select b.id, b.name,s.name sortname,b.author,b.butyime from tb_books b,tb_sort s  where  b.sortid=s.id  limit #{index},#{pageSize}
+</select>
+
+</mapper>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-3.1.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+	
+		<!-- 注解扫描 -->
+	<context:component-scan base-package="biz.impl"></context:component-scan>
+		
+	<!-- 数据源配置     第一种：DBCP连接池-->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		<property name="url" value="jdbc:mysql://localhost:3306/book"></property>
+		<property name="username" value="root"></property>
+		<property name="password" value="100796"></property>
+	</bean>
+	
+	
+	
+	
+	
+	 <!-- sqlSessioFactory -->
+	 <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	 	<property name="dataSource" ref="dataSource"></property>
+	 	<property name="configLocation" value="classpath:mybatis-config.xml"></property>
+	 	<property name="mapperLocations">
+	 	<list>
+	 	<value>classpath:dao/*.xml</value>
+	 	</list> 
+	 	</property>
+	 </bean>
+	 
+	 
+	 <!-- Mapper接口的扫描  创建Dao的实例，并自动放入spring容器中   bean的名称，接口首字母小写 -->
+	 <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+	 <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+	 <property name="basePackage" value="dao"></property>
+	 </bean>
+	 
+	<!--  <bean id="userBiz" class="biz.Impl.UserBizImpl">
+	 	<property name="userMapper" ref="userMapper"></property>
+	 </bean> -->
+	                                                  
+	 
+	 
+	 <!-- 声明事务管理 -->
+	 <!-- 配置事务管理器 -->
+	  <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	 <property name="dataSource" ref="dataSource"></property>
+	 </bean> 
+	 
+	 <!-- 事务传播特性 -->
+	 <tx:advice id="txAdvice" transaction-manager="txManager">
+	 	<tx:attributes>
+	 		<tx:method name="get*" propagation="REQUIRED" read-only="true"/>
+	 		<tx:method name="find*" propagation="REQUIRED" read-only="true"/>
+	 		<tx:method name="add*" propagation="REQUIRED"/>
+	 		<tx:method name="delete*" propagation="REQUIRED"/>
+	 		<tx:method name="update*" propagation="REQUIRED"/>
+	 		<tx:method name="*" propagation="REQUIRED"/>
+	 	</tx:attributes>	
+	 </tx:advice>
+	 
+	 <!-- 事务切面 -->
+	 <aop:config>
+	 <aop:pointcut expression="execution(* biz..*.*(..))" id="bizMethod"/>
+	 <aop:advisor advice-ref="txAdvice" pointcut-ref="bizMethod"/>
+	 </aop:config>
+	 
+	  
+</beans>
